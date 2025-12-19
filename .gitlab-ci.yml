@@ -1,0 +1,70 @@
+stages:
+  - test
+  - secret-detection
+  - build
+  - deploy
+
+# ---------------- SECURITY ----------------
+include:
+  - template: Security/Secret-Detection.gitlab-ci.yml
+
+variables:
+  SECRET_DETECTION_ENABLED: "true"
+
+# ---------------- GLOBAL VARIABLES ----------------
+variables:
+  PROJECT_ID: "devops11-479107"
+  REGION: "asia-south1"
+  REGISTRY: "asia-south1-docker.pkg.dev"
+  ARTIFACT_REPO: "hdfc"
+  IMAGE_NAME: "myapp"
+  SERVICE_NAME: "django-app"
+  IMAGE_TAG: "$CI_COMMIT_SHORT_SHA"
+
+# ---------------- BUILD IMAGE ----------------
+build_docker_image:
+  stage: build
+  image: docker:24
+  services:
+    - name: docker:24-dind
+      command: ["--tls=false"]
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+  before_script:
+    # Install gcloud SDK
+    - apk add --no-cache curl python3 py3-crcmod bash
+    - curl -sSL https://sdk.cloud.google.com | bash
+    - export PATH=$PATH:/root/google-cloud-sdk/bin
+
+    # GCP authentication
+    - echo "$GCP_SA_KEY" | base64 -d > key.json
+    - gcloud auth activate-service-account --key-file=key.json
+    - gcloud config set project $PROJECT_ID
+    - gcloud auth configure-docker $REGISTRY --quiet
+  script:
+    - docker build -t $REGISTRY/$PROJECT_ID/$ARTIFACT_REPO/$IMAGE_NAME:$IMAGE_TAG .
+    - docker push $REGISTRY/$PROJECT_ID/$ARTIFACT_REPO/$IMAGE_NAME:$IMAGE_TAG
+  only:
+    - main
+
+# ---------------- DEPLOY TO CLOUD RUN ----------------
+deploy_cloud_run:
+  stage: deploy
+  image: google/cloud-sdk:latest
+  before_script:
+    - echo "$GCP_SA_KEY" | base64 -d > key.json
+    - gcloud auth activate-service-account --key-file=key.json
+    - gcloud config set project $PROJECT_ID
+    - gcloud config set run/region $REGION
+  script:
+    - |
+      gcloud run deploy $SERVICE_NAME \
+        --image $REGISTRY/$PROJECT_ID/$ARTIFACT_REPO/$IMAGE_NAME:$IMAGE_TAG \
+        --platform managed \
+        --region $REGION \
+        --allow-unauthenticated \
+        --quiet
+  only:
+    - main
+
