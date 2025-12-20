@@ -70,6 +70,16 @@ Secrets fetched securely from Secret Manager
 
 Create a Service Account and assign the following roles:
 
+gcloud iam service-accounts create terraform-sa \
+  --display-name="Terraform Cloud Run Service Account"
+
+✅ : Assign Required IAM Roles
+
+gcloud projects add-iam-policy-binding devops11-479107 \
+  --member="serviceAccount:terraform-sa@devops11-479107.iam.gserviceaccount.com" \
+  --role="roles/secretmanager.secretAccessor"
+
+
 🔑 Role	                             📌Purpose
 
  1. Artifact Registry Writer	         Push Docker images
