@@ -1,0 +1,13 @@
+from django.http import HttpResponse
+from django.db import connection
+
+def home(request):
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT DATABASE()")
+        db_name = cursor.fetchone()[0]
+
+    return HttpResponse(
+        f"<h1>Django App Running on Cloud Run 🚀</h1>"
+        f"<p>Connected MySQL Database: <b>{db_name}</b></p>"
+    )
+

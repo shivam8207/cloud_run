@@ -1,0 +1,204 @@
+# create service accont and allow following roles: 
+# Artifact Registry Writer
+Cloud Run Admin
+Compute Admin
+Editor
+Secret Manager Secret Accessor   (must imp for secret manager)
+Service Account User
+
+# How to Create mysql server
+
+# How to create secrete manager 
+/*
+
+1# Enable Secret Manager API
+
+2# create  Secret Manager
+
+> add  Secret details: for example you have created mysql server :with (MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DB )
+
+> like name= MYSQL_HOST
+
+> value=  /cloudsql/devops11-479107:asia-south1:cloud-run    (syntex: /cloudsql/PROJECT_ID:REGION:INSTANCE_NAME)
+
+2.1# create second credentials:    > name = MYSQL_USER       value = teentak
+
+2.3# Create 3 secrete name = MYSQL_PASSWORD    value =  kYo\mD3:?uxd,iXG
+
+2.4# Create 4 secrete name =  MYSQL_DB    value =  teentak
+
+*/
+
+####################################################################################################################
+
+#step2:  Create  Artifact Registry name: hdfc
+
+#step3:  How to Authenticat cloud shell to artifact Repository;
+
+gcloud auth login
+
+# gcloud config set project YOUR_PROJECT_ID
+
+gcloud config set project devops11-479107
+
+gcloud auth configure-docker asia-south1-docker.pkg.dev
+
+
+docker build -t django-cloudrun-app .
+
+#docker tag django-cloudrun-app \
+ asia-south1-docker.pkg.dev/YOUR_PROJECT_ID/django-repo/django-app:v1
+
+
+docker tag django-cloudrun-app \
+asia-south1-docker.pkg.dev/devops11-479107/hdfc/django-app:v1
+
+Step 5️⃣ Docker Image Push karo
+
+docker push asia-south1-docker.pkg.dev/YOUR_PROJECT_ID/django-repo/django-app:v1
+
+Verify:
+
+Artifact Registry → Hdfc → Images
+
+🔵 Cloud Run me Image Use karo (Already Built Image)
+
+Cloud Run → Create Service
+
+ Source: Deploy one container image
+
+Image URL paste karo:
+
+Port: 8080
+
+Authentication: Allow unauthenticated
+
+Environment variable:
+
+#GCP_PROJECT=your-project-id
+
+GCP_PROJECT= devops11-479107
+
+✅ Authentication
+
+✔ Allow public access
+
+✅ Billing
+
+✔ Request-based (recommended)
+
+✅ Service scaling
+
+Min instances: 1
+
+Max instances: 2
+
+✔ OK
+
+✅ Ingress
+
+✔ All
+(Internet se direct access chahiye)
+
+🟢 PART-2: Containers → Variables & Secrets (VERY IMPORTANT)
+
+Go to:
+
+Containers → Edit container → Variables & Secrets
+
+
+🔑 Environment Variable (REQUIRED)
+Click Add Variable
+Name	Value
+GCP_PROJECT	devops11-479107
+
+
+🔐 Secrets (OPTIONAL but BEST PRACTICE)
+
+Aapne secrets already Secret Manager me bana liye hain
+Par code ke andar Secret Manager se read ho raha hai, isliye:
+
+👉 Yaha secrets add karne ki zarurat NAHI hai
+
+⚠️ Ye point bahut important hai:
+
+Aap secrets code se read kar rahe ho
+
+Isliye yaha mapping karna optional hai
+
+🟢 PART-3: MySQL (Cloud SQL) Connection – MAIN PART 🔥
+Go to:
+
+Containers, Networking, Security → Networking
+
+
+🔹 Execution Environment
+
+✔ Second generation (recommended)
+
+🔹 Cloud SQL connections
+
+✔ Enable Cloud SQL connections
+
+Select:
+
+devops11-479107:asia-south1:cloud-run      #✔ Ye step mandatory hai
+
+❓ Ye kya karta hai?
+
+Cloud Run automatically:
+
+Secure socket create karta hai
+
+Private IP ke bina MySQL connect kar deta hai
+
+🔹 VPC Connector
+
+❌ NOT REQUIRED (jab Cloud SQL connector use kar rahe ho)
+
+🟢 PART-4: Containers Settings (CHECKLIST)
+Container port
+8080
+
+Container command / arguments
+
+✔ Blank chhod do
+
+(Dockerfile ka CMD use hoga)
+
+Request timeout
+
+🟢 PART-5: Security Tab
+
+Service account
+
+✔ Use default compute service account
+
+Make sure it has:
+
+Secret Manager Secret Accessor
+
+Cloud SQL Client
+
+🟢 FINAL DEPLOY
+Click 👉 DEPLOY
+
+Wait:
+
+✅ EXPECTED RESULT (SUCCESS CASE)
+
+Open: https://django-app-918955775042.asia-south1.run.app
+
+You should see:
+
+Django App Running on Cloud Run 🚀
+a
+Connected MySQL Database: teentak
+
+
+
+
+
+
+
+
