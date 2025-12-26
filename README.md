@@ -2,6 +2,12 @@
 
 🚀 Dockerized Django App on Google Cloud Run with Cloud SQL (MySQL) & Secret Manager
 
+📝 Short Description
+
+This project is a cloud-native Django e-commerce application deployed on Google Cloud Run, using Cloud SQL (MySQL) as the backend database and Google Secret Manager for secure credential management.
+
+The application demonstrates end-to-end deployment, secure database connectivity, and production-ready DevOps practices using Docker and GCP managed services.
+
 
 ## Getting started
 
