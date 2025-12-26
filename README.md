@@ -8,6 +8,24 @@ This project is a cloud-native Django e-commerce application deployed on Google 
 
 The application demonstrates end-to-end deployment, secure database connectivity, and production-ready DevOps practices using Docker and GCP managed services.
 
+____________________________________________________________________________________________________________________________________________________________________________
+
+✨ Key Features
+
+✅ Add products (name, price, quantity)
+
+✅ View product listings stored in MySQL
+
+✅ Read & write database operations
+
+✅ Fully Dockerized Django application
+
+✅ Secure secret handling (no hardcoded credentials)
+
+✅ Deployed on Google Cloud Run
+
+✅ Uses Cloud SQL Connector (no public IP)
+
 
 ## Getting started
 
